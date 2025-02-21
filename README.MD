@@ -137,9 +137,4 @@ The following environment variables should be set in your `.env` file:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is open-source and available under the.
-
 ```

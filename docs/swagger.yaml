@@ -1,0 +1,267 @@
+basePath: /
+definitions:
+  model_todoSM.ErrorResponse:
+    properties:
+      Error:
+        example: invalid request body
+        type: string
+    type: object
+  model_todoSM.NotFoundResponse:
+    properties:
+      message:
+        example: Resource not found
+        type: string
+    type: object
+  model_todoSM.Post:
+    properties:
+      brand:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      platform:
+        type: string
+      title:
+        type: string
+    type: object
+  model_todoSM.PostInput:
+    properties:
+      brand:
+        example: Brand A
+        type: string
+      due_date:
+        description: Harus sebagai string di input
+        example: "2025-01-10"
+        type: string
+      platform:
+        example: Platform X
+        type: string
+      title:
+        example: My Post
+        type: string
+    type: object
+  model_todoSM.PostsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model_todoSM.Post'
+        type: array
+      message:
+        example: Posts found!
+        type: string
+    type: object
+  model_todoSM.ServerErrorResponse:
+    properties:
+      message:
+        example: Failed to process request
+        type: string
+    type: object
+  model_todoSM.SinglePostResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model_todoSM.Post'
+      message:
+        example: Post retrieved successfully
+        type: string
+    type: object
+  model_todoSM.StandardResponse:
+    properties:
+      data: {}
+      message:
+        example: Operation successful
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: API to manage social media post
+  title: TO-DO Api
+  version: "1.0"
+paths:
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: Get all social media posts with a response wrapper containing message
+        and data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts retrieved successfully
+          schema:
+            $ref: '#/definitions/model_todoSM.PostsResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model_todoSM.ServerErrorResponse'
+      summary: Retrieve all posts
+      tags:
+      - posts
+    post:
+      consumes:
+      - application/json
+      description: Create a new social media post with the required fields
+      parameters:
+      - description: Post data
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/model_todoSM.PostInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Post created successfully
+          schema:
+            $ref: '#/definitions/model_todoSM.SinglePostResponse'
+        "400":
+          description: Invalid request body or missing fields
+          schema:
+            $ref: '#/definitions/model_todoSM.ErrorResponse'
+        "500":
+          description: Failed to create post due to server error
+          schema:
+            $ref: '#/definitions/model_todoSM.ServerErrorResponse'
+      summary: Create a new post
+      tags:
+      - posts
+  /posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a social media post by its ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post deleted successfully
+          schema:
+            $ref: '#/definitions/model_todoSM.StandardResponse'
+        "400":
+          description: Post ID is missing
+          schema:
+            $ref: '#/definitions/model_todoSM.ErrorResponse'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/model_todoSM.NotFoundResponse'
+        "500":
+          description: Failed to delete post due to server error
+          schema:
+            $ref: '#/definitions/model_todoSM.ServerErrorResponse'
+      summary: Delete a post
+      tags:
+      - posts
+    put:
+      consumes:
+      - application/json
+      description: Update an existing social media post by ID. Only non-empty fields
+        will be updated.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post data
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/model_todoSM.PostInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post updated successfully
+          schema:
+            $ref: '#/definitions/model_todoSM.SinglePostResponse'
+        "400":
+          description: Invalid request body or missing ID
+          schema:
+            $ref: '#/definitions/model_todoSM.ErrorResponse'
+        "404":
+          description: Post not found
+          schema:
+            $ref: '#/definitions/model_todoSM.NotFoundResponse'
+        "500":
+          description: Failed to update post due to server error
+          schema:
+            $ref: '#/definitions/model_todoSM.ServerErrorResponse'
+      summary: Update an existing post
+      tags:
+      - posts
+  /posts/{targetDate}:
+    get:
+      consumes:
+      - application/json
+      description: Get posts with due dates between now and now+targetDate days.
+      parameters:
+      - description: Number of days from now to filter posts
+        in: path
+        name: targetDate
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts found in the specified range
+          schema:
+            $ref: '#/definitions/model_todoSM.PostsResponse'
+        "400":
+          description: Invalid targetDate parameter
+          schema:
+            $ref: '#/definitions/model_todoSM.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/model_todoSM.ServerErrorResponse'
+      summary: Retrieve posts within a day range from now
+      tags:
+      - posts
+  /posts/due-date:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve posts within the specified date range. Dates must be in
+        YYYY-MM-DD format.
+      parameters:
+      - description: Start date in YYYY-MM-DD format
+        in: query
+        name: date1
+        required: true
+        type: string
+      - description: End date in YYYY-MM-DD format
+        in: query
+        name: date2
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Posts found within range
+          schema:
+            $ref: '#/definitions/model_todoSM.PostsResponse'
+        "400":
+          description: Invalid date format or missing parameter
+          schema:
+            $ref: '#/definitions/model_todoSM.ErrorResponse'
+        "500":
+          description: Database error
+          schema:
+            $ref: '#/definitions/model_todoSM.ServerErrorResponse'
+      summary: Retrieve posts by due date range
+      tags:
+      - posts
+swagger: "2.0"
